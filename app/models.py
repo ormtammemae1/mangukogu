@@ -86,7 +86,7 @@ class GameFields(SQLModel):
 
 class Game(GameFields, table=True):
     id: int | None = Field(default=None, primary_key=True)
-    image: str | None = None  # file name in IMAGE_DIR; thumbnail is "thumb-" + image
+    image: str | None = None  # file name in IMAGE_DIR, or the photo URL in Vercel Blob (see images.py)
     created_at: datetime = Field(default_factory=utcnow)
     updated_at: datetime = Field(default_factory=utcnow)
     categories: list[Category] = Relationship(back_populates="games", link_model=GameCategory)

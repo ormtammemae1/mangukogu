@@ -134,3 +134,40 @@ def test_png_with_transparency_is_converted(client):
     r = client.put(f"/api/games/{game['id']}/image", files={"file": ("a.png", buf.getvalue(), "image/png")})
     assert r.status_code == 200
     assert r.json()["image_url"].endswith(".jpg")
+
+
+def test_images_go_to_blob_when_configured(client, monkeypatch, tmp_path):
+    from types import SimpleNamespace
+
+    import vercel.blob.sync as blob
+
+    from app import images
+
+    store = {}
+    base = "https://store.public.blob.vercel-storage.com"
+
+    def put_blob(pathname, body, **options):
+        assert options["access"] == "public"
+        store[f"{base}/{pathname}"] = body
+        return SimpleNamespace(url=f"{base}/{pathname}")
+
+    def delete_blob(urls):
+        for url in urls:
+            store.pop(url, None)
+
+    monkeypatch.setattr(images, "BLOB_ENABLED", True)
+    monkeypatch.setattr(blob, "put_blob", put_blob)
+    monkeypatch.setattr(blob, "delete_blob", delete_blob)
+
+    game = client.post("/api/games", json={"name": "Memo"}).json()
+    first = client.put(f"/api/games/{game['id']}/image", files={"file": ("a.jpg", _jpeg(), "image/jpeg")}).json()
+    assert first["image_url"].startswith(base)
+    assert max(Image.open(io.BytesIO(store[first["image_url"]])).size) == 1600
+    assert max(Image.open(io.BytesIO(store[first["thumb_url"]])).size) == 480
+
+    second = client.put(f"/api/games/{game['id']}/image", files={"file": ("b.jpg", _jpeg(), "image/jpeg")}).json()
+    assert set(store) == {second["image_url"], second["thumb_url"]}  # old photo removed from Blob
+
+    assert client.delete(f"/api/games/{game['id']}").status_code == 204
+    assert store == {}
+    assert list((tmp_path / "images").iterdir()) == []  # nothing written to local disk

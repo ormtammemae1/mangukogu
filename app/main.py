@@ -10,7 +10,7 @@ from sqlmodel import Session, col, func, or_, select
 
 from . import database
 from .database import get_session, init_db
-from .images import BadImage, delete_image, save_image
+from .images import BadImage, delete_image, image_urls, save_image
 from .models import (
     Category,
     CategoryCreate,
@@ -114,14 +114,15 @@ def delete_category(category_id: int, session: SessionDep):
 # ---- Games ----
 
 def _to_read(game: Game) -> GameRead:
+    image_url, thumb_url = image_urls(game.image)
     return GameRead(
         id=game.id,
         name=game.name,
         notes=game.notes,
         age_min=game.age_min,
         age_max=game.age_max,
-        image_url=f"/images/{game.image}" if game.image else None,
-        thumb_url=f"/images/thumb-{game.image}" if game.image else None,
+        image_url=image_url,
+        thumb_url=thumb_url,
         categories=[
             GameCategoryRef(id=c.id, name=c.name)
             for c in sorted(game.categories, key=lambda c: (c.position, c.name))

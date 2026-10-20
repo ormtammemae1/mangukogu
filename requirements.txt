@@ -3,5 +3,8 @@ uvicorn[standard]>=0.30
 sqlmodel>=0.0.22
 python-multipart>=0.0.9
 pillow>=10
+# Only used when hosted on Vercel (Postgres database, Blob photo storage).
+psycopg[binary]>=3.2
+vercel-blob>=0.5
 httpx>=0.27
 pytest>=8

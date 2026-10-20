@@ -17,6 +17,18 @@ default categories are added when the database is new.
 
     .venv/bin/python -m pytest
 
+## Deploy to Vercel
+
+Vercel's disk is read-only and temporary, so there the games live in Postgres and the photos in
+Vercel Blob. Both connect from the project's **Storage** tab in the Vercel dashboard:
+
+1. **Postgres:** add a Neon database (Marketplace) and connect it to the project. This sets `DATABASE_URL`.
+2. **Photos:** create a Blob store with **public** access and connect it. This sets `BLOB_READ_WRITE_TOKEN`.
+3. Redeploy. The tables and default categories are created on first start.
+
+Without both, the app refuses to start on Vercel and says what to connect. Photo URLs in Blob are
+public but random and unguessable.
+
 ## Deploy to a Raspberry Pi
 
 Replace `user@pi-host` with your Pi's login and hostname.
