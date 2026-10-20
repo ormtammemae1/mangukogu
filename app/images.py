@@ -1,6 +1,6 @@
 """Save uploaded game photos: fix phone rotation, shrink, and make a thumbnail.
 
-Photos go to Vercel Blob when BLOB_READ_WRITE_TOKEN is set (hosting on Vercel), otherwise to a local
+Photos go to Vercel Blob when a Blob store is connected (hosting on Vercel), otherwise to a local
 folder (laptop, Pi). The game stores either the local file name or, for Blob, the full photo URL; the
 thumbnail always sits next to the photo as "thumb-" + its file name.
 """
@@ -14,7 +14,9 @@ from PIL import Image, ImageOps, UnidentifiedImageError
 FULL_SIZE = 1600
 THUMB_SIZE = 480
 MAX_UPLOAD_BYTES = 25 * 1024 * 1024
-BLOB_ENABLED = bool(os.getenv("BLOB_READ_WRITE_TOKEN"))
+# Newer Blob stores set BLOB_STORE_ID and sign in with Vercel's per-request OIDC token; older ones
+# set a BLOB_READ_WRITE_TOKEN.
+BLOB_ENABLED = bool(os.getenv("BLOB_STORE_ID") or os.getenv("BLOB_READ_WRITE_TOKEN"))
 
 
 class BadImage(ValueError):

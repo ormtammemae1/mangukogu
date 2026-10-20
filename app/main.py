@@ -10,7 +10,7 @@ from sqlmodel import Session, col, func, or_, select
 
 from . import database
 from .database import get_session, init_db
-from .images import BadImage, delete_image, image_urls, save_image
+from .images import BLOB_ENABLED, BadImage, delete_image, image_urls, save_image
 from .models import (
     Category,
     CategoryCreate,
@@ -35,6 +35,29 @@ async def lifespan(_: FastAPI):
 
 
 app = FastAPI(title="Mängukogu", lifespan=lifespan)
+
+
+class VercelRequestHeaders:
+    """Make each request's headers visible to the Vercel Blob client.
+
+    On Vercel, Blob signs in with the OIDC token Vercel adds to every request as a header; the client
+    looks for it in vercel.headers, so put the headers there for the length of the request.
+    """
+
+    def __init__(self, app):
+        self.app = app
+
+    async def __call__(self, scope, receive, send):
+        if scope["type"] != "http":
+            return await self.app(scope, receive, send)
+        from vercel.headers import HeadersContext, headers_from_asgi_scope
+
+        with HeadersContext(headers_from_asgi_scope(scope)).use():
+            await self.app(scope, receive, send)
+
+
+if BLOB_ENABLED:
+    app.add_middleware(VercelRequestHeaders)
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
 SessionDep = Annotated[Session, Depends(get_session)]

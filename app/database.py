@@ -66,7 +66,7 @@ def init_db() -> None:
     if os.getenv("VERCEL") and (IS_SQLITE or not BLOB_ENABLED):
         # Vercel's disk is read-only and wiped between instances, so local files would be lost.
         raise RuntimeError(
-            "On Vercel, connect a Postgres database (DATABASE_URL) and a Blob store (BLOB_READ_WRITE_TOKEN)."
+            "On Vercel, connect a Postgres database (DATABASE_URL) and a Blob store (BLOB_STORE_ID)."
         )
     if IS_SQLITE:
         DATA_DIR.mkdir(parents=True, exist_ok=True)

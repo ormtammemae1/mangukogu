@@ -23,7 +23,8 @@ Vercel's disk is read-only and temporary, so there the games live in Postgres an
 Vercel Blob. Both connect from the project's **Storage** tab in the Vercel dashboard:
 
 1. **Postgres:** add a Neon database (Marketplace) and connect it to the project. This sets `DATABASE_URL`.
-2. **Photos:** create a Blob store with **public** access and connect it. This sets `BLOB_READ_WRITE_TOKEN`.
+2. **Photos:** create a Blob store with **public** access and connect it. This sets `BLOB_STORE_ID`
+   (older stores set `BLOB_READ_WRITE_TOKEN` instead; either works).
 3. Redeploy. The tables and default categories are created on first start.
 
 Without both, the app refuses to start on Vercel and says what to connect. Photo URLs in Blob are
