@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="et">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Mängukogu</title>
+  <meta name="theme-color" content="#fbf7f2" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#1f1d1b" media="(prefers-color-scheme: dark)">
+  <!-- Home-screen app: iPhone "Lisa avakuvale" (Safari share menu), Android Chrome "Installi rakendus". -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Mängud">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="apple-touch-icon" href="/static/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="/static/icon-192.png">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <button id="back-btn" class="icon-btn" type="button" aria-label="Tagasi" hidden>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+    </button>
+    <h1 id="title">Mängukogu</h1>
+    <button id="menu-btn" class="icon-btn" type="button" aria-label="Kategooria valikud" hidden>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg>
+    </button>
+  </header>
+
+  <main id="view"></main>
+
+  <nav class="actionbar" id="actionbar">
+    <button id="add-category-btn" type="button">+ Lisa kategooria</button>
+    <button id="add-game-btn" type="button" class="primary">+ Lisa mäng</button>
+  </nav>
+
+  <!-- Add / edit game -->
+  <dialog id="game-dialog" class="sheet">
+    <form id="game-form" method="dialog" novalidate>
+      <header class="sheet-head">
+        <button type="button" class="link" data-close>Tühista</button>
+        <h2 id="game-dialog-title">Uus mäng</h2>
+        <button type="submit" class="link strong" id="game-save">Salvesta</button>
+      </header>
+      <div class="sheet-body">
+        <label class="field">
+          <span>Mängu nimi</span>
+          <input name="name" required maxlength="120" autocomplete="off" placeholder="nt Värvilised klotsid">
+        </label>
+
+        <div class="field">
+          <span>Pilt</span>
+          <div class="photo-box" id="photo-box">
+            <img id="photo-preview" alt="" hidden>
+            <div class="photo-empty" id="photo-empty">Pilti pole lisatud</div>
+          </div>
+          <div class="photo-actions">
+            <button type="button" id="photo-camera-btn">📷 Tee pilt</button>
+            <button type="button" id="photo-file-btn">🖼️ Vali galeriist</button>
+            <button type="button" id="photo-remove-btn" class="danger-text" hidden>Eemalda</button>
+          </div>
+          <!-- capture= opens the camera straight away; the other input offers the photo library. -->
+          <input id="photo-camera" type="file" accept="image/*" capture="environment" hidden>
+          <input id="photo-file" type="file" accept="image/*" hidden>
+        </div>
+
+        <fieldset class="field">
+          <legend>Kategooriad</legend>
+          <div id="category-picker" class="chips wrap"></div>
+        </fieldset>
+
+        <fieldset class="field">
+          <legend>Vanus</legend>
+          <div class="age-row">
+            <label>alates <select name="age_min" id="age-min"></select></label>
+            <label>kuni <select name="age_max" id="age-max"></select></label>
+            <span>aastat</span>
+          </div>
+        </fieldset>
+
+        <label class="field">
+          <span>Märkmed</span>
+          <textarea name="notes" rows="5" maxlength="5000" placeholder="Kuidas mängida, mida jälgida, mis vahendid on vaja…"></textarea>
+        </label>
+
+        <p class="form-error" id="game-error" hidden></p>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Add / rename category -->
+  <dialog id="category-dialog" class="small">
+    <form id="category-form" method="dialog" novalidate>
+      <h2 id="category-dialog-title">Uus kategooria</h2>
+      <label class="field">
+        <span>Nimi</span>
+        <input name="name" required maxlength="80" autocomplete="off">
+      </label>
+      <p class="form-error" id="category-error" hidden></p>
+      <div class="dialog-actions">
+        <button type="button" data-close>Tühista</button>
+        <button type="submit" class="primary">Salvesta</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Category options (rename / delete) -->
+  <dialog id="category-menu" class="small">
+    <h2 id="category-menu-title"></h2>
+    <div class="menu-list">
+      <button type="button" id="rename-category-btn">Nimeta ümber</button>
+      <button type="button" id="delete-category-btn" class="danger-text">Kustuta kategooria</button>
+      <button type="button" data-close>Sulge</button>
+    </div>
+  </dialog>
+
+  <!-- Confirm -->
+  <dialog id="confirm-dialog" class="small">
+    <p id="confirm-text"></p>
+    <div class="dialog-actions">
+      <button type="button" value="no" data-close>Tühista</button>
+      <button type="button" value="yes" class="danger" id="confirm-yes">Kustuta</button>
+    </div>
+  </dialog>
+
+  <div id="toast" class="toast" role="status" hidden></div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
